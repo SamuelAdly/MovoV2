@@ -42,7 +42,7 @@ export default function ContactPage() {
 
     return (
         <div style={{ minHeight: 'calc(100vh - 64px)' }} className="bg-gradient-to-br from-gray-900 to-indigo-900 text-white font-sans flex flex-col justify-center items-center p-4">
-            <div className="w-full max-w-4xl bg-white/10 backdrop-blur-md rounded-lg shadow-lg p-8 animate-fadeIn">
+            <div className="w-full max-w-4xl bg-gray-900 backdrop-blur-md rounded-lg shadow-lg p-8 animate-fadeIn">
                 <h1 className="text-4xl font-bold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">
                     Contact Us
                 </h1>

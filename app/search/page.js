@@ -18,6 +18,7 @@ export default function Search() {
     const [addedTVShows, setAddedTVShows] = useState([]); // State for added TV shows
     const [addedPeople, setAddedPeople] = useState([]); // State for added people
     const inputRef = useRef(null);
+    const searchBarRef = useRef(null);
 
     useEffect(() => {
         if (isExpanded) {
@@ -107,9 +108,22 @@ export default function Search() {
         return false;
     };
 
+    const handleClickOutside = (event) => {
+        if (searchBarRef.current && !searchBarRef.current.contains(event.target)) {
+            setIsExpanded(false);
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
         <div className="min-h-screen h-full w-full bg-gradient-to-br from-gray-900 to-indigo-900 flex flex-col items-center">
-            <div className="relative w-full max-w-2xl mt-4">
+            <div ref={searchBarRef} className="relative w-full max-w-2xl mt-4">
                 <div className={`flex items-center bg-gray-900 rounded-full overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'w-full' : 'w-12 h-12'}`}>
                     <button //search icon expandable
                         className="p-3 text-gray-600 hover:text-gray-800 focus:outline-none"

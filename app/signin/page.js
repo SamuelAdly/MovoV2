@@ -18,7 +18,7 @@ export default function Signin() {
 
     return (
         <div style={{ minHeight: 'calc(100vh - 64px)' }} className="bg-gradient-to-br from-gray-900 to-indigo-900 text-white font-sans flex flex-col justify-center items-center p-4">
-            <div className="w-full max-w-md bg-white/10 backdrop-blur-md rounded-lg shadow-lg p-8 animate-fadeIn">
+            <div className="w-full max-w-md bg-gray-900 backdrop-blur-md rounded-lg shadow-lg p-8 animate-fadeIn">
                 <div className="flex justify-center mb-8">
                     <div className="bg-purple-600 rounded-full p-3 animate-pulse">
                         <FaFilm size={48} className="text-white" />
