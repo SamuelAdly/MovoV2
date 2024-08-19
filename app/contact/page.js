@@ -47,7 +47,7 @@ export default function ContactPage() {
                     Contact Us
                 </h1>
                 <p className="text-center mb-8 text-lg">
-                    We'd love to hear from you! Drop us a message and we'll get back to you soon.
+                    We’d love to hear from you! Drop us a message and we’ll get back to you soon.
                 </p>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="relative">

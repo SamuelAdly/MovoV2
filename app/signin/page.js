@@ -62,7 +62,7 @@ export default function Signin() {
                 </form>
                 <div className="mt-6 text-center">
                     <p className="text-gray-400">
-                        Don't have an account?{' '}
+                        Don’t have an account?{' '}
                         <a 
                             href="/signup" 
                             className="text-purple-400 hover:text-purple-300 transition-colors duration-300 animate-pulse"
