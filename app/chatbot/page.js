@@ -114,7 +114,7 @@ export default function Movo() {
             />
             <button
               onClick={handleSendMessage}
-              className={`p-4 bg-gradient-to-r from-gray-900 to-indigo-900 text-white border-t border-b border-l border-r rounded-r-md hover:bg-opacity-80 focus:outline-none transition-colors duration-300`}
+              className={`p-4 bg-gradient-to-r from-purple-400 to-purple-950 text-white border-t border-b border-l border-r rounded-r-md hover:bg-opacity-80 focus:outline-none transition-colors duration-300`}
             >
               Send
             </button>
