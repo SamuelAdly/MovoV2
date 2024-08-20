@@ -7,6 +7,9 @@ import ScrollToTop from '../components/scrolltotop';
 import axios from 'axios';
 import { FaCirclePlus } from "react-icons/fa6";
 import { FaMinusCircle } from "react-icons/fa";
+import { db } from '@/firebase';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { useUser } from '@clerk/nextjs';
 
 export default function Search() {
     const [isExpanded, setIsExpanded] = useState(false);
@@ -14,11 +17,14 @@ export default function Search() {
     const [searchResults, setSearchResults] = useState([]);
     const [hoveredItem, setHoveredItem] = useState(null);
     const [actorDetails, setActorDetails] = useState({});
-    const [addedMovies, setAddedMovies] = useState([]); // State for added movies
-    const [addedTVShows, setAddedTVShows] = useState([]); // State for added TV shows
-    const [addedPeople, setAddedPeople] = useState([]); // State for added people
+    const [addedMovies, setAddedMovies] = useState([]); 
+    const [addedTVShows, setAddedTVShows] = useState([]);
+    const [addedPeople, setAddedPeople] = useState([]); 
     const inputRef = useRef(null);
     const searchBarRef = useRef(null);
+
+    const { user } = useUser();
+    const userId = user?.id;
 
     useEffect(() => {
         if (isExpanded) {
@@ -62,6 +68,26 @@ export default function Search() {
         }
     }, [hoveredItem]);
 
+    const fetchSavedItems = async (userId) => {
+        try{
+            const moviesSnapshot = await getDocs(collection(db, `users/${userId}/savedMovies`));
+            const tvShowsSnapshot = await getDocs(collection(db, `users/${userId}/savedTVShows`));
+            const peopleSnapshot = await getDocs(collection(db, `users/${userId}/savedPeople`));
+        
+            setAddedMovies(moviesSnapshot.docs.map(doc => doc.data()));
+            setAddedTVShows(tvShowsSnapshot.docs.map(doc => doc.data()));
+            setAddedPeople(peopleSnapshot.docs.map(doc => doc.data()));
+    } catch (error) {
+        console.error("Error fetching saved items from Firestore", error);
+    }
+    };
+
+    useEffect(() => {
+        if (userId) {
+        fetchSavedItems(userId);
+        }
+    }, [userId]);
+
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
     };
@@ -71,29 +97,43 @@ export default function Search() {
         setSearchResults([]);
     };
 
-    const handleAddItem = (item) => {
-        if (item.media_type === 'movie') {
-            if (!addedMovies.find((added) => added.id === item.id)) {
-                setAddedMovies((prev) => [...prev, item]);
+    const handleAddItem = async (item, userId) => {
+        try {
+            if (item.media_type === 'movie') {
+                if (!addedMovies.find((added) => added.id === item.id)) {
+                    await addDoc(collection(db, `users/${userId}/savedMovies`), item);
+                    setAddedMovies((prev) => [...prev, item]);
+                }
+            } else if (item.media_type === 'tv') {
+                if (!addedTVShows.find((added) => added.id === item.id)) {
+                    await addDoc(collection(db, `users/${userId}/savedTVShows`), item);
+                    setAddedTVShows((prev) => [...prev, item]);
+                }
+            } else if (item.media_type === 'person') {
+                if (!addedPeople.find((added) => added.id === item.id)) {
+                    await addDoc(collection(db, `users/${userId}/savedPeople`), item);
+                    setAddedPeople((prev) => [...prev, item]);
+                }
             }
-        } else if (item.media_type === 'tv') {
-            if (!addedTVShows.find((added) => added.id === item.id)) {
-                setAddedTVShows((prev) => [...prev, item]);
-            }
-        } else if (item.media_type === 'person') {
-            if (!addedPeople.find((added) => added.id === item.id)) {
-                setAddedPeople((prev) => [...prev, item]);
-            }
+        } catch (error) {
+            console.error("Error adding item to Firestore", error);
         }
     };
-
-    const handleRemoveItem = (itemId, mediaType) => {
-        if (mediaType === 'movie') {
-            setAddedMovies((prev) => prev.filter((item) => item.id !== itemId));
-        } else if (mediaType === 'tv') {
-            setAddedTVShows((prev) => prev.filter((item) => item.id !== itemId));
-        } else if (mediaType === 'person') {
-            setAddedPeople((prev) => prev.filter((item) => item.id !== itemId));
+    
+    const handleRemoveItem = async (itemId, mediaType, userId) => {
+        try {
+            if (mediaType === 'movie') {
+                await deleteDoc(doc(db, `users/${userId}/savedMovies`, itemId));
+                setAddedMovies((prev) => prev.filter((item) => item.id !== itemId));
+            } else if (mediaType === 'tv') {
+                await deleteDoc(doc(db, `users/${userId}/savedTVShows`, itemId));
+                setAddedTVShows((prev) => prev.filter((item) => item.id !== itemId));
+            } else if (mediaType === 'person') {
+                await deleteDoc(doc(db, `users/${userId}/savedPeople`, itemId));
+                setAddedPeople((prev) => prev.filter((item) => item.id !== itemId));
+            }
+        } catch (error) {
+            console.error("Error removing item from Firestore", error);
         }
     };
 
@@ -120,6 +160,18 @@ export default function Search() {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+const handleAddItemClick = (item) => {
+    if (userId) {
+        handleAddItem(item, userId);
+    }
+};
+
+const handleRemoveItemClick = (itemId, mediaType) => {
+    if (userId) {
+        handleRemoveItem(itemId, mediaType, userId);
+    }
+};
 
     return (
         <div className="min-h-screen h-full w-full bg-gradient-to-br from-gray-900 to-indigo-900 flex flex-col items-center">
@@ -192,14 +244,14 @@ export default function Search() {
                                         </div>
                                         <button
                                             className={`ml-2 ${isItemAdded(result.id, result.media_type) ? 'text-gray-400 cursor-not-allowed' : 'text-green-500 hover:text-green-700'} focus:outline-none`}
-                                            onClick={() => handleAddItem(result)}
+                                            onClick={() => handleAddItemClick(result)}
                                             disabled={isItemAdded(result.id, result.media_type)}
                                         >
                                             <FaCirclePlus size={20} />
                                         </button>
                                         <button
                                             className="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
-                                            onClick={() => handleRemoveItem(result.id, result.media_type)}
+                                            onClick={() => handleRemoveItemClick(result.id, result.media_type)}
                                         >
                                             <FaMinusCircle size={20} />
                                         </button>
@@ -248,7 +300,7 @@ export default function Search() {
                                 </div>
                                 <button
                                     className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
-                                    onClick={() => handleRemoveItem(movie.id, 'movie')}
+                                    onClick={() => handleRemoveItemClick(movie.id, 'movie')}
                                 >
                                     <FaMinusCircle size={20} />
                                 </button>
@@ -285,7 +337,7 @@ export default function Search() {
                                 </div>
                                 <button
                                     className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
-                                    onClick={() => handleRemoveItem(show.id, 'tv')}
+                                    onClick={() => handleRemoveItemClick(show.id, 'tv')}
                                 >
                                     <FaMinusCircle size={20} />
                                 </button>
@@ -322,7 +374,7 @@ export default function Search() {
                                 </div>
                                 <button
                                     className="ml-auto text-red-500 hover:text-red-700 focus:outline-none"
-                                    onClick={() => handleRemoveItem(person.id, 'person')}
+                                    onClick={() => handleRemoveItemClick(person.id, 'person')}
                                 >
                                     <FaMinusCircle size={20} />
                                 </button>
