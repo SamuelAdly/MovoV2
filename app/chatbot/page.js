@@ -82,7 +82,7 @@ export default function Movo() {
 
           <div className={`flex-1 overflow-y-auto bg-gray-800 rounded-md p-4 scrollbar-thin transition-colors duration-300`}>
             <p className={`inline-block p-3 rounded-lg bg-gray-900 text-gray-100`}>
-              Hello, I am Movo your AI Powered Recommendation Bot
+              Hello, I am Movo, your AI Powered Recommendation Bot! Please ask me anything concerning your streaming needs.
             </p>
             {messages.map((msg, index) => (
               <div
