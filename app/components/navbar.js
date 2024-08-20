@@ -44,7 +44,7 @@ export default function Navbar() {
                             </a>
                             <a href="/chatbot" className="text-white hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out flex items-center space-x-1">
                             <SiGooglegemini className=" h-4 w-4" />
-                            <span className="font-bold hidden sm:inline">MovoBot</span>
+                            <span className="font-bold hidden sm:inline">Movo Bot</span>
                             </a>
                             <a href="/contact" className="text-white hover:text-purple-400 px-3 py-2 rounded-md text-sm font-medium transition duration-150 ease-in-out flex items-center space-x-1">
                             <IoIosMail className=" h-5 w-5" />

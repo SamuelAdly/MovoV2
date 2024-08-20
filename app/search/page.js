@@ -8,7 +8,7 @@ import axios from 'axios';
 import { FaCirclePlus } from "react-icons/fa6";
 import { FaMinusCircle } from "react-icons/fa";
 import { db } from '@/firebase';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, setDoc, doc, deleteDoc } from "firebase/firestore";
 import { useUser } from '@clerk/nextjs';
 
 export default function Search() {
@@ -97,21 +97,28 @@ export default function Search() {
         setSearchResults([]);
     };
 
+
     const handleAddItem = async (item, userId) => {
         try {
+            // Create a reference to the document with the item ID
+            let docRef;
+    
             if (item.media_type === 'movie') {
                 if (!addedMovies.find((added) => added.id === item.id)) {
-                    await addDoc(collection(db, `users/${userId}/savedMovies`), item);
+                    docRef = doc(db, `users/${userId}/savedMovies/${item.id}`);
+                    await setDoc(docRef, item);
                     setAddedMovies((prev) => [...prev, item]);
                 }
             } else if (item.media_type === 'tv') {
                 if (!addedTVShows.find((added) => added.id === item.id)) {
-                    await addDoc(collection(db, `users/${userId}/savedTVShows`), item);
+                    docRef = doc(db, `users/${userId}/savedTVShows/${item.id}`);
+                    await setDoc(docRef, item);
                     setAddedTVShows((prev) => [...prev, item]);
                 }
             } else if (item.media_type === 'person') {
                 if (!addedPeople.find((added) => added.id === item.id)) {
-                    await addDoc(collection(db, `users/${userId}/savedPeople`), item);
+                    docRef = doc(db, `users/${userId}/savedPeople/${item.id}`);
+                    await setDoc(docRef, item);
                     setAddedPeople((prev) => [...prev, item]);
                 }
             }
@@ -119,17 +126,23 @@ export default function Search() {
             console.error("Error adding item to Firestore", error);
         }
     };
-    
+
     const handleRemoveItem = async (itemId, mediaType, userId) => {
         try {
             if (mediaType === 'movie') {
-                await deleteDoc(doc(db, `users/${userId}/savedMovies`, itemId));
+                // Delete the document with the specified itemId in the savedMovies collection
+                await deleteDoc(doc(db, `users/${userId}/savedMovies/${itemId}`));
+                // Update the state by filtering out the removed item
                 setAddedMovies((prev) => prev.filter((item) => item.id !== itemId));
             } else if (mediaType === 'tv') {
-                await deleteDoc(doc(db, `users/${userId}/savedTVShows`, itemId));
+                // Delete the document with the specified itemId in the savedTVShows collection
+                await deleteDoc(doc(db, `users/${userId}/savedTVShows/${itemId}`));
+                // Update the state by filtering out the removed item
                 setAddedTVShows((prev) => prev.filter((item) => item.id !== itemId));
             } else if (mediaType === 'person') {
-                await deleteDoc(doc(db, `users/${userId}/savedPeople`, itemId));
+                // Delete the document with the specified itemId in the savedPeople collection
+                await deleteDoc(doc(db, `users/${userId}/savedPeople/${itemId}`));
+                // Update the state by filtering out the removed item
                 setAddedPeople((prev) => prev.filter((item) => item.id !== itemId));
             }
         } catch (error) {
