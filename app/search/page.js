@@ -100,7 +100,6 @@ export default function Search() {
 
     const handleAddItem = async (item, userId) => {
         try {
-            // Create a reference to the document with the item ID
             let docRef;
     
             if (item.media_type === 'movie') {
@@ -130,19 +129,13 @@ export default function Search() {
     const handleRemoveItem = async (itemId, mediaType, userId) => {
         try {
             if (mediaType === 'movie') {
-                // Delete the document with the specified itemId in the savedMovies collection
                 await deleteDoc(doc(db, `users/${userId}/savedMovies/${itemId}`));
-                // Update the state by filtering out the removed item
                 setAddedMovies((prev) => prev.filter((item) => item.id !== itemId));
             } else if (mediaType === 'tv') {
-                // Delete the document with the specified itemId in the savedTVShows collection
                 await deleteDoc(doc(db, `users/${userId}/savedTVShows/${itemId}`));
-                // Update the state by filtering out the removed item
                 setAddedTVShows((prev) => prev.filter((item) => item.id !== itemId));
             } else if (mediaType === 'person') {
-                // Delete the document with the specified itemId in the savedPeople collection
                 await deleteDoc(doc(db, `users/${userId}/savedPeople/${itemId}`));
-                // Update the state by filtering out the removed item
                 setAddedPeople((prev) => prev.filter((item) => item.id !== itemId));
             }
         } catch (error) {
